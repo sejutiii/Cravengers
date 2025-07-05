@@ -12,6 +12,7 @@ const {
 const upload = multer({ dest: 'uploads/' });
 
 // Routes
+router.get('/:restaurantId', getMenuByRestaurant);
 router.post('/', upload.array('images'), createMenuItems);
 router.patch('/:restaurantId/items/:itemId', upload.single('image'), updateMenuItem);
 router.delete('/restaurant/:restaurantId', deleteMenuItemsByRestaurant);

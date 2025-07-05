@@ -2,11 +2,30 @@ require('dotenv').config();
 const cloudinary = require('cloudinary').v2;
 const Menu = require('../models/menu');
 const asyncHandler = require('express-async-handler');
-const fs = require('fs').promises; // Add fs for file deletion
+const fs = require('fs').promises;
 
 // Configure Cloudinary
 cloudinary.config({
   cloudinary_url: process.env.CLOUDINARY_URL
+});
+
+// @desc    Get menu items for a restaurant
+// @route   GET /api/menus/:restaurantId
+// @access  Public
+const getMenuByRestaurant = asyncHandler(async (req, res) => {
+  const { restaurantId } = req.params;
+
+  // Find menu
+  const menu = await Menu.findOne({ restaurantId }).select('items');
+  if (!menu || menu.items.length === 0) {
+    res.status(404);
+    throw new Error('No menu items found for this restaurant');
+  }
+
+  res.status(200).json({
+    success: true,
+    data: menu.items
+  });
 });
 
 // @desc    Create multiple menu items
@@ -190,6 +209,7 @@ const deleteMenuItem = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
+  getMenuByRestaurant,
   createMenuItems,
   updateMenuItem,
   deleteMenuItemsByRestaurant,

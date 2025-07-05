@@ -1,7 +1,5 @@
-const express = require('express');
-const router = express.Router();
-const Customer = require('../models/customer');
-const TempCustomer = require('../models/tempCustomer');
+const Rider = require('../models/rider');
+const TempRider = require('../models/tempRider');
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
@@ -23,13 +21,13 @@ transporter.verify((error, success) => {
 
 const generateVerificationToken = () => Math.random().toString(36).substring(2, 15);
 
-router.post('/customer/signup/', async (req, res) => {
+exports.riderSignUp = async (req, res) => {
   const { name, username, email, password, phoneNo, address } = req.body;
 
   const existingUsers = await Promise.all([
-    Customer.findOne({ $or: [{ userName: username }, { email }] }),
+    require('../models/customer').findOne({ $or: [{ userName: username }, { email }] }),
     require('../models/restaurant').findOne({ $or: [{ userName: username }, { email }] }),
-    require('../models/rider').findOne({ $or: [{ userName: username }, { email }] })
+    Rider.findOne({ $or: [{ userName: username }, { email }] })
   ]);
   if (existingUsers.some(user => user)) return res.status(400).json({ error: 'Username or email already exists' });
 
@@ -39,8 +37,7 @@ router.post('/customer/signup/', async (req, res) => {
   const hashedPassword = await bcrypt.hash(password, 10);
   const verificationToken = generateVerificationToken();
 
-  // Save to temp collection, not main collection
-  await TempCustomer.findOneAndUpdate(
+  await TempRider.findOneAndUpdate(
     { email },
     { userName: username, name, email, password: hashedPassword, phoneNo, address, verificationToken, createdAt: new Date() },
     { upsert: true }
@@ -61,6 +58,33 @@ router.post('/customer/signup/', async (req, res) => {
     console.error('Error sending email:', error);
     res.status(500).json({ error: 'Failed to send verification email' });
   }
-});
+};
 
-module.exports = router;
+exports.getRiderById = async (req, res) => {
+  try {
+    const rider = await Rider.findById(req.params.id);
+    if (!rider) return res.status(404).json({ error: 'Rider not found' });
+    res.json(rider);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.deleteRiderById = async (req, res) => {
+  try {
+    const result = await Rider.deleteOne({ _id: req.params.id });
+    if (result.deletedCount === 0) return res.status(404).json({ error: 'Rider not found' });
+    res.json({ message: 'Rider deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.getAllRiders = async (req, res) => {
+  try {
+    const riders = await Rider.find();
+    res.json(riders);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};

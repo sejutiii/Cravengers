@@ -1,5 +1,3 @@
-const express = require('express');
-const router = express.Router();
 const Restaurant = require('../models/restaurant');
 const TempRestaurant = require('../models/tempRestaurant');
 const nodemailer = require('nodemailer');
@@ -23,7 +21,7 @@ transporter.verify((error, success) => {
 
 const generateVerificationToken = () => Math.random().toString(36).substring(2, 15);
 
-router.post('/restaurant/signup/', async (req, res) => {
+exports.restaurantSignUp = async (req, res) => {
   const { name, username, email, password, phoneNo, cuisine, address, openingTime, closingTime } = req.body;
 
   const existingUsers = await Promise.all([
@@ -39,7 +37,6 @@ router.post('/restaurant/signup/', async (req, res) => {
   const hashedPassword = await bcrypt.hash(password, 10);
   const verificationToken = generateVerificationToken();
 
-  // Save to temp collection, not main collection
   await TempRestaurant.findOneAndUpdate(
     { email },
     { userName: username, name, email, password: hashedPassword, phoneNo, cuisine, address, openingTime, closingTime, verificationToken, createdAt: new Date() },
@@ -61,6 +58,33 @@ router.post('/restaurant/signup/', async (req, res) => {
     console.error('Error sending email:', error);
     res.status(500).json({ error: 'Failed to send verification email' });
   }
-});
+};
 
-module.exports = router;
+exports.getRestaurantById = async (req, res) => {
+  try {
+    const restaurant = await Restaurant.findById(req.params.id);
+    if (!restaurant) return res.status(404).json({ error: 'Restaurant not found' });
+    res.json(restaurant);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.deleteRestaurantById = async (req, res) => {
+  try {
+    const result = await Restaurant.deleteOne({ _id: req.params.id });
+    if (result.deletedCount === 0) return res.status(404).json({ error: 'Restaurant not found' });
+    res.json({ message: 'Restaurant deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.getAllRestaurants = async (req, res) => {
+  try {
+    const restaurants = await Restaurant.find();
+    res.json(restaurants);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};

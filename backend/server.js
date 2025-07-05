@@ -8,6 +8,7 @@ const authRoutes = require('./routes/authRoutes');
 const customerApi = require('./customerService/customerApi');
 const restaurantApi = require('./restaurantService/restaurantApi');
 const riderApi = require('./riderService/riderApi');
+const menuRoutes = require('./routes/menuRoutes');
 
 // Load environment variables from .env file
 dotenv.config();
@@ -39,3 +40,4 @@ app.use('/api/auth', authRoutes);
 app.use('/api/customer', customerApi);
 app.use('/api/restaurant', restaurantApi);
 app.use('/api/rider', riderApi);
+app.use('/api/menus', menuRoutes);

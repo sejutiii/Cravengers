@@ -6,7 +6,4 @@ router.get('/:id', getRestaurantById);
 router.delete('/:id', deleteRestaurantById);
 router.get('/', getAllRestaurants);
 
-router.route('/menu')
-  
-
 module.exports = router;

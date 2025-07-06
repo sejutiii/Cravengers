@@ -32,7 +32,16 @@ const getMenuByRestaurant = asyncHandler(async (req, res) => {
 // @route   POST /api/menus
 // @access  Private (Restaurant Admin)
 const createMenuItems = asyncHandler(async (req, res) => {
-  const { restaurantId, items } = req.body;
+  let { restaurantId, items } = req.body;
+  // Parse items if sent as a string (form-data)
+  if (typeof items === 'string') {
+    try {
+      items = JSON.parse(items);
+    } catch (e) {
+      res.status(400);
+      throw new Error('Items must be a valid JSON array');
+    }
+  }
 
   // Validate input
   if (!restaurantId || !items || !Array.isArray(items) || items.length === 0) {
@@ -110,14 +119,17 @@ const updateMenuItem = asyncHandler(async (req, res) => {
   // Handle image update
   let imageUrl = item.imageUrl;
   let tempFilePath = null;
-  if (req.files && req.files[0] && req.files[0].path) {
+  // PATCH expects upload.single('image'), so req.file not req.files
+  if (req.file && req.file.path) {
     // Delete old image from Cloudinary if it exists
     if (item.imageUrl) {
-      const publicId = item.imageUrl.split('/').pop().split('.')[0];
+      const urlParts = item.imageUrl.split('/');
+      const fileName = urlParts[urlParts.length - 1];
+      const publicId = fileName.substring(0, fileName.lastIndexOf('.'));
       await cloudinary.uploader.destroy(`food-delivery/menus/${restaurantId}/${publicId}`);
     }
     // Upload new image
-    tempFilePath = req.files[0].path;
+    tempFilePath = req.file.path;
     const result = await cloudinary.uploader.upload(tempFilePath, {
       folder: `food-delivery/menus/${restaurantId}`,
       use_filename: true,
@@ -185,21 +197,24 @@ const deleteMenuItem = asyncHandler(async (req, res) => {
     throw new Error('Menu not found for this restaurant');
   }
 
-  // Find item in items array
-  const item = menu.items.id(itemId);
-  if (!item) {
+  // Find item index in items array
+  const itemIndex = menu.items.findIndex(i => i._id.toString() === itemId);
+  if (itemIndex === -1) {
     res.status(404);
     throw new Error('Menu item not found');
   }
+  const item = menu.items[itemIndex];
 
   // Delete image from Cloudinary if exists
   if (item.imageUrl) {
-    const publicId = item.imageUrl.split('/').pop().split('.')[0];
+    const urlParts = item.imageUrl.split('/');
+    const fileName = urlParts[urlParts.length - 1];
+    const publicId = fileName.substring(0, fileName.lastIndexOf('.'));
     await cloudinary.uploader.destroy(`food-delivery/menus/${restaurantId}/${publicId}`);
   }
 
   // Remove item from items array
-  item.remove();
+  menu.items.splice(itemIndex, 1);
   await menu.save();
 
   res.status(200).json({

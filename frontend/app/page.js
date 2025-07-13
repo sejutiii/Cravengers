@@ -119,25 +119,44 @@ export default function HomePage() {
 
               {/* Actions */}
               <div className="flex items-center space-x-4">
-                <Button variant="ghost" size="icon" onClick={() => setIsDark(!isDark)}>
-                  {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-                </Button>
+  {/* <Button
+    variant="ghost"
+    size="icon"
+    onClick={() => setIsDark(!isDark)}
+    className="hover:bg-orange-500 rounded-[5px] transition-colors group"
+  >
+    {isDark ? (
+      <Sun className="h-5 w-5 text-black group-hover:text-white transition-colors" />
+    ) : (
+      <Moon className="h-5 w-5 text-black group-hover:text-white transition-colors" />
+    )}
+  </Button> */}
 
-                <Button variant="ghost" size="icon" onClick={handleLoginClick}>
-                  <User className="h-5 w-5" />
-                </Button>
+  <Button
+    variant="ghost"
+    size="icon"
+    onClick={handleLoginClick}
+    className="hover:bg-orange-500 rounded-[5px] transition-colors group"
+  >
+    <User className="h-5 w-5 text-black group-hover:text-white transition-colors" />
+  </Button>
 
-                <button onClick={handleCartClick} className="relative">
-                  <Button variant="ghost" size="icon">
-                    <ShoppingCart className="h-5 w-5" />
-                    {cartCount > 0 && (
-                      <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-orange-500">
-                        {cartCount}
-                      </Badge>
-                    )}
-                  </Button>
-                </button>
-              </div>
+  <button onClick={handleCartClick} className="relative">
+    <Button
+      variant="ghost"
+      size="icon"
+      className="hover:bg-orange-500 rounded-[5px] transition-colors group"
+    >
+      <ShoppingCart className="h-5 w-5 text-black group-hover:text-white transition-colors" />
+      {cartCount > 0 && (
+        <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-orange-500">
+          {cartCount}
+        </Badge>
+      )}
+    </Button>
+  </button>
+</div>
+
             </div>
           </div>
         </header>

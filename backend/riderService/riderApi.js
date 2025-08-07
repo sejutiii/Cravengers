@@ -11,4 +11,6 @@ router.delete('/:id', deleteRiderById);
 // Get all riders
 router.get('/', getAllRiders);
 
+//Need to add a patch route for updating rider active status
+
 module.exports = router;

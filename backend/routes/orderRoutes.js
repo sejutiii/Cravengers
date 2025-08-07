@@ -16,9 +16,9 @@ router.get('/', getAllOrders);
 
 router.get('/:id', getOrderById);
 
-router.get('/:customerId', getOrderByCustomer);
+router.get('/customer/:customerId', getOrderByCustomer);
 
-router.get('/:restaurantId', getOrderByRestaurant);
+router.get('/restaurant/:restaurantId', getOrderByRestaurant);
 
 router.patch('/:id/status', updateOrderStatus);
 

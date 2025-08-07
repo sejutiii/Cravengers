@@ -1,17 +1,33 @@
 const Order = require('../models/order');
 const Rider = require('../models/rider');
+const Menu = require('../models/menu');
 const mongoose = require('mongoose');
 
 // Create a new order and assign a rider
 const createOrder = async (req, res) => {
   try {
-    const { customerId, restaurantId, items, totalAmount, deliveryAddress} = req.body;
+    const { customerId, restaurantId, items, deliveryAddress} = req.body;
     
     // Validate required fields
-    if (!customerId || !restaurantId || !items || !totalAmount || !deliveryAddress || !deliveryTime) {
+    if (!customerId || !restaurantId || !items  || !deliveryAddress) {
       return res.status(400).json({ message: 'All required fields must be provided' });
     }
-
+    
+    // Calculate total amount
+    let totalAmount = 0;
+    for (const item of items) {
+      const menuItem = await Menu.findOne(
+        { 'items._id': item.itemId },
+        { 'items.$': 1 }
+      );
+      
+      if (!menuItem || !menuItem.items[0]) {
+        return res.status(404).json({ message: `Menu item with ID ${item.itemId} not found` });
+      }
+      
+      totalAmount += menuItem.items[0].price * item.quantity;
+    }
+    
     // Create new order
     const order = new Order({
       customerId,
@@ -19,9 +35,7 @@ const createOrder = async (req, res) => {
       items,
       totalAmount,
       deliveryAddress,
-    });
-
-    await order.save();
+    });    await order.save();
 
     // Assign a rider to the order
     const updatedOrder = await assignRider(order._id);

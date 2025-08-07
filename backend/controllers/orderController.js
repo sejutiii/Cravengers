@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 // Create a new order and assign a rider
 const createOrder = async (req, res) => {
   try {
-    const { customerId, restaurantId, items, totalAmount, deliveryAddress, deliveryTime } = req.body;
+    const { customerId, restaurantId, items, totalAmount, deliveryAddress} = req.body;
     
     // Validate required fields
     if (!customerId || !restaurantId || !items || !totalAmount || !deliveryAddress || !deliveryTime) {
@@ -19,7 +19,6 @@ const createOrder = async (req, res) => {
       items,
       totalAmount,
       deliveryAddress,
-      deliveryTime
     });
 
     await order.save();

@@ -10,6 +10,7 @@ const restaurantApi = require('./restaurantService/restaurantApi');
 const riderApi = require('./riderService/riderApi');
 const menuRoutes = require('./routes/menuRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const paymentRoutes = require('./routes/paymentRoutes'); // New payment routes
 
 // Load environment variables from .env file
 dotenv.config();
@@ -30,16 +31,17 @@ app.get('/', (req, res) => {
   res.send('Welcome to the Food Delivery App API');
 });
 
-// Start the server using the port from environment variables
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
-
-app.use(express.json());
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/customer', customerApi);
 app.use('/api/restaurant', restaurantApi);
 app.use('/api/rider', riderApi);
 app.use('/api/menus', menuRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/payment', paymentRoutes); // Payment routes
+
+// Start the server using the port from environment variables
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});

@@ -1,7 +1,5 @@
-const express = require('express');
-const router = express.Router();
-const Rider = require('../models/rider');
-const TempRider = require('../models/tempRider');
+const TempRider = require('../../models/tempRider');
+const Rider = require('../../models/rider');
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
@@ -13,22 +11,14 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-transporter.verify((error, success) => {
-  if (error) {
-    console.error('Email transporter setup failed:', error);
-  } else {
-    console.log('Email transporter is ready');
-  }
-});
-
 const generateVerificationToken = () => Math.random().toString(36).substring(2, 15);
 
-router.post('/rider/signup/', async (req, res) => {
+exports.riderSignUp = async (req, res) => {
   const { name, username, email, password, phoneNo, address } = req.body;
 
   const existingUsers = await Promise.all([
-    require('../models/customer').findOne({ $or: [{ userName: username }, { email }] }),
-    require('../models/restaurant').findOne({ $or: [{ userName: username }, { email }] }),
+    require('../../models/customer').findOne({ $or: [{ userName: username }, { email }] }),
+    require('../../models/restaurant').findOne({ $or: [{ userName: username }, { email }] }),
     Rider.findOne({ $or: [{ userName: username }, { email }] })
   ]);
   if (existingUsers.some(user => user)) return res.status(400).json({ error: 'Username or email already exists' });
@@ -39,7 +29,6 @@ router.post('/rider/signup/', async (req, res) => {
   const hashedPassword = await bcrypt.hash(password, 10);
   const verificationToken = generateVerificationToken();
 
-  // Save to temp collection, not main collection
   await TempRider.findOneAndUpdate(
     { email },
     { userName: username, name, email, password: hashedPassword, phoneNo, address, verificationToken, createdAt: new Date() },
@@ -61,6 +50,4 @@ router.post('/rider/signup/', async (req, res) => {
     console.error('Error sending email:', error);
     res.status(500).json({ error: 'Failed to send verification email' });
   }
-});
-
-module.exports = router;
+};

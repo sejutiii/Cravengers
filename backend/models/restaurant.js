@@ -12,6 +12,6 @@ const restaurantSchema = new mongoose.Schema({
   closingTime: { type: String, required: true },
   isOpen: { type: Boolean, default: false },
   rating: { type: Number, min: 0, max: 5, default: 0 }
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('Restaurant', restaurantSchema);

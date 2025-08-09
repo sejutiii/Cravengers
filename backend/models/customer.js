@@ -8,6 +8,6 @@ const customerSchema = new mongoose.Schema({
   address: { type: String, required: true },
   password: { type: String, required: true },
   favoriteRestaurants: { type: [String], maxItems: 3 }
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('Customer', customerSchema);

@@ -9,6 +9,6 @@ const tempRiderSchema = new mongoose.Schema({
   address: { type: String, required: true },
   verificationToken: { type: String, required: true },
   createdAt: { type: Date, default: Date.now, expires: 600 }
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('TempRider', tempRiderSchema);

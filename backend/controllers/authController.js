@@ -1,5 +1,3 @@
-const express = require('express');
-const router = express.Router();
 const Customer = require('../models/customer');
 const TempCustomer = require('../models/tempCustomer');
 const Restaurant = require('../models/restaurant');
@@ -10,7 +8,7 @@ const TempRider = require('../models/tempRider');
 const userTypes = { customer: Customer, restaurant: Restaurant, rider: Rider };
 const tempUserTypes = { customer: TempCustomer, restaurant: TempRestaurant, rider: TempRider };
 
-router.post('/', async (req, res) => {
+exports.verifyUser = async (req, res) => {
   const { userType, email, token } = req.body;
 
   if (userType === 'customer' || userType === 'restaurant' || userType === 'rider') {
@@ -39,6 +37,4 @@ router.post('/', async (req, res) => {
   user.verificationToken = null;
   await user.save();
   res.json({ message: 'Account verified successfully' });
-});
-
-module.exports = router;
+};

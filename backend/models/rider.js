@@ -10,6 +10,6 @@ const riderSchema = new mongoose.Schema({
   rating: { type: Number, min: 0, max: 5, default: 0 },
   deliveryCount: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true }
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('Rider', riderSchema);

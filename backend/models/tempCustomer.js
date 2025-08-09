@@ -9,6 +9,6 @@ const tempCustomerSchema = new mongoose.Schema({
   password: { type: String, required: true },
   verificationToken: { type: String, required: true },
   createdAt: { type: Date, default: Date.now, expires: 600 } // expires in 10 minutes
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('TempCustomer', tempCustomerSchema);
